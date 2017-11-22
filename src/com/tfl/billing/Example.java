@@ -33,6 +33,6 @@ public class Example {
     }
 
     private static void minutesPass(int n) throws InterruptedException {
-        Thread.sleep(n * 60 * 1000);
+        Thread.sleep(n * 60 * 1);
     }
 }
