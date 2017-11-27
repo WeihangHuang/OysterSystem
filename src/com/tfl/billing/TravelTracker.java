@@ -15,6 +15,7 @@ public class TravelTracker implements ScanListener {
 
     private final List<JourneyEvent> eventLog = new ArrayList<JourneyEvent>();
     private final Set<UUID> currentlyTravelling = new HashSet<UUID>();
+    private CachingPaymentsService paymentService = new CachingPaymentsService();
 
     public void chargeAccounts() {
         CustomerDatabase customerDatabase = CustomerDatabase.getInstance();
@@ -26,6 +27,7 @@ public class TravelTracker implements ScanListener {
     }
 
     private void totalJourneysFor(Customer customer) {
+
         List<JourneyEvent> customerJourneyEvents = new ArrayList<JourneyEvent>();
         for (JourneyEvent journeyEvent : eventLog) {
             if (journeyEvent.cardId().equals(customer.cardId())) {
@@ -55,7 +57,8 @@ public class TravelTracker implements ScanListener {
             customerTotal = customerTotal.add(journeyPrice);
         }
 
-        PaymentsSystem.getInstance().charge(customer, journeys, roundToNearestPenny(customerTotal));
+        paymentService.charge(customer, journeys, roundToNearestPenny(customerTotal));
+
     }
 
     private BigDecimal roundToNearestPenny(BigDecimal poundsAndPence) {
