@@ -2,14 +2,10 @@ package com.tfl.billing;
 
 import com.oyster.OysterCard;
 import com.oyster.OysterCardReader;
-import com.tfl.underground.OysterReaderLocator;
-import com.tfl.underground.Station;
+import com.tfl.underground.OysterReaderLocator;  import com.tfl.underground.Station;
 
-
-/**
- * Created by apple on 11/22/17.
- */
 public class Example {
+
 
     public static void main(String[] args) throws Exception {
         OysterCard myCard = new OysterCard("38400000-8cf0-11bd-b23e-10b96e4ef00d");
@@ -19,8 +15,8 @@ public class Example {
         OysterCardReader kingsCrossReader = OysterReaderLocator.atStation(Station.KINGS_CROSS);
 
         TravelTracker travelTracker = new TravelTracker();
-        travelTracker.connect(paddingtonReader, bakerStreetReader, kingsCrossReader);
 
+        travelTracker.connect(paddingtonReader, bakerStreetReader, kingsCrossReader);
         paddingtonReader.touch(myCard);
         minutesPass(5);
         bakerStreetReader.touch(myCard);
@@ -28,7 +24,6 @@ public class Example {
         bakerStreetReader.touch(myCard);
         minutesPass(10);
         kingsCrossReader.touch(myCard);
-
         travelTracker.chargeAccounts();
     }
 
