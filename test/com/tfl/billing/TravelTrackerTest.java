@@ -36,7 +36,7 @@ public class TravelTrackerTest {
     private final OysterCard newCard = new OysterCard("38400000-8cf0-11bd-b23e-10b96e4ef00d");
     private final Customer customer = new Customer("Fred Bloggs", newCard);
 
-    private final List<Customer> CUSTOMERS = Arrays.asList(customer);
+    private List<Customer> CUSTOMERS = new ArrayList<>();
     private List<Journey> journey;
     private BigDecimal costTotal;
 
@@ -61,6 +61,8 @@ public class TravelTrackerTest {
 
     @Test
     public void oneCustomerNoJourneysTest(){ //also test getting and sending data
+
+        CUSTOMERS.add(customer);
         journey = new ArrayList<>();
         costTotal= new BigDecimal(0).setScale(2, BigDecimal.ROUND_HALF_UP);
 
@@ -76,6 +78,7 @@ public class TravelTrackerTest {
 
     @Test
     public void oneCustomerOneNonPeakJourneysTest(){
+        CUSTOMERS.add(customer);
         costTotal = new BigDecimal(2.4).setScale(2, BigDecimal.ROUND_HALF_UP);
 
         context.checking(new Expectations(){{
@@ -99,7 +102,7 @@ public class TravelTrackerTest {
 
     @Test
     public void oneCustomerOnePeakJourneysTest() {
-
+        CUSTOMERS.add(customer);
         costTotal = new BigDecimal(3.2).setScale(2, BigDecimal.ROUND_HALF_UP);
 
         context.checking(new Expectations() {{
@@ -123,6 +126,7 @@ public class TravelTrackerTest {
 
     @Test
     public void oneCustomerTwoPeakJourneysTest() {
+        CUSTOMERS.add(customer);
         costTotal = new BigDecimal(6.4).setScale(2, BigDecimal.ROUND_HALF_UP);
 
         context.checking(new Expectations() {{
@@ -145,6 +149,36 @@ public class TravelTrackerTest {
 
         clock.setTime(20,0);
         kingsCrossReader.touch(newCard);
+
+        tracker.chargeAccounts();
+    }
+
+    @Test
+    public void twoCustomerOnePeakJourneysTest() {
+        CUSTOMERS.add(customer);
+        costTotal = new BigDecimal(3.2).setScale(2, BigDecimal.ROUND_HALF_UP);
+
+        OysterCard newCardTwo = new OysterCard("3f1b3b55-f266-4426-ba1b-bcc506541866");
+        Customer customer2 = new Customer("Shelly Cooper", newCardTwo);
+        CUSTOMERS.add(customer2);
+
+        context.checking(new Expectations() {{
+            exactly(1).of(database).getCustomers();
+            will(returnValue(CUSTOMERS));
+            exactly(1).of(adapter).charge(with(equal(customer)), with(aNonNull(List.class)), with(equal(costTotal)));
+            exactly(1).of(adapter).charge(with(equal(customer2)), with(aNonNull(List.class)), with(equal(costTotal)));
+        }});
+
+
+        tracker.connect(paddingtonReader, bakerStreetReader, kingsCrossReader);
+
+        clock.setTime(7, 0);
+        paddingtonReader.touch(newCard);
+        kingsCrossReader.touch(newCardTwo);
+
+        clock.setTime(9, 5);
+        bakerStreetReader.touch(newCard);
+        paddingtonReader.touch(newCardTwo);
 
         tracker.chargeAccounts();
     }
