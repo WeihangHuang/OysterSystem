@@ -10,16 +10,6 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="external" level="project" />
     <orderEntry type="module-library" scope="TEST">
-      <library name="JUnit5">
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/lib/junit-jupiter-api-5.0.0-M3.jar!/" />
-          <root url="jar://$MODULE_DIR$/lib/opentest4j-1.0.0-M1.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library" scope="TEST">
       <library name="JUnit4">
         <CLASSES>
           <root url="jar://$MODULE_DIR$/lib/junit-4.12.jar!/" />
@@ -27,6 +17,28 @@
         </CLASSES>
         <JAVADOC />
         <SOURCES />
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" scope="TEST">
+      <library>
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/lib/jmock-junit4-2.6.0.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES>
+          <root url="jar://$MODULE_DIR$/lib/jmock-junit4-2.6.0.jar!/" />
+        </SOURCES>
+      </library>
+    </orderEntry>
+    <orderEntry type="module-library" scope="TEST">
+      <library>
+        <CLASSES>
+          <root url="jar://$MODULE_DIR$/lib/jmock-2.6.0.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES>
+          <root url="jar://$MODULE_DIR$/lib/jmock-2.6.0.jar!/" />
+        </SOURCES>
       </library>
     </orderEntry>
   </component>
