@@ -9,8 +9,10 @@ import java.util.*;
 
 public class TravelTracker implements ScanListener {
 
-    static final BigDecimal OFF_PEAK_JOURNEY_PRICE = new BigDecimal(2.40);
-    static final BigDecimal PEAK_JOURNEY_PRICE = new BigDecimal(3.20);
+    static final BigDecimal OFF_PEAK_SHORT_JOURNEY_PRICE = new BigDecimal(1.60);
+    static final BigDecimal OFF_PEAK_LONG_JOURNEY_PRICE = new BigDecimal(2.70);
+    static final BigDecimal PEAK_SHORT_JOURNEY_PRICE = new BigDecimal(2.90);
+    static final BigDecimal PEAK_LONG_JOURNEY_PRICE = new BigDecimal(3.80);
 
     private final List<JourneyEvent> eventLog = new ArrayList<JourneyEvent>();
     private final Set<UUID> currentlyTravelling = new HashSet<UUID>();
@@ -70,13 +72,23 @@ public class TravelTracker implements ScanListener {
 
      private BigDecimal calculateTotalPrice(List<Journey> journeys){
         BigDecimal customerTotal = new BigDecimal(0);
+        boolean peak_flag = false;
         for (Journey journey : journeys) {
-            BigDecimal journeyPrice = OFF_PEAK_JOURNEY_PRICE;
-            if (peak(journey)) {
-                journeyPrice = PEAK_JOURNEY_PRICE;
-            }
+            int minutePass = (journey.durationSeconds() / 60);
+            boolean longJourney = false;
+            if (minutePass >= 25) {longJourney = true;}
+
+            BigDecimal journeyPrice = OFF_PEAK_SHORT_JOURNEY_PRICE;
+
+            if (peak(journey) && longJourney) {journeyPrice = PEAK_LONG_JOURNEY_PRICE; peak_flag = true;}
+            if (peak(journey) && !longJourney) {journeyPrice = PEAK_SHORT_JOURNEY_PRICE; peak_flag = true;}
+            if (!peak(journey) && longJourney) {journeyPrice = OFF_PEAK_LONG_JOURNEY_PRICE;}
             customerTotal = customerTotal.add(journeyPrice);
         }
+
+        if (peak_flag && (customerTotal.doubleValue() > 9)) {customerTotal = new BigDecimal(9.00);}
+        if (!peak_flag && (customerTotal.doubleValue() > 7)) {customerTotal = new BigDecimal(7.00);}
+
 
         return customerTotal;
 

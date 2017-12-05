@@ -12,13 +12,13 @@ import org.junit.Test;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
  * Created by apple on 12/4/17.
  */
 public class TravelTrackerTest {
+
 
     private class ControllableClock implements Clock{
         long time;
@@ -33,8 +33,10 @@ public class TravelTrackerTest {
         }
     }
 
-    private final OysterCard newCard = new OysterCard("38400000-8cf0-11bd-b23e-10b96e4ef00d");
-    private final Customer customer = new Customer("Fred Bloggs", newCard);
+    private final OysterCard newCardOne = new OysterCard("38400000-8cf0-11bd-b23e-10b96e4ef00d");
+    private final OysterCard newCardTwo = new OysterCard("3f1b3b55-f266-4426-ba1b-bcc506541866");;
+    private final Customer customerOne = new Customer("Fred Bloggs", newCardOne);
+    private final Customer customerTwo = new Customer("Shelly Cooper", newCardTwo);
 
     private List<Customer> CUSTOMERS = new ArrayList<>();
     private List<Journey> journey;
@@ -47,8 +49,8 @@ public class TravelTrackerTest {
     @Rule
     public JUnitRuleMockery context = new JUnitRuleMockery();
 
-    DatabaseAdapter database = context.mock(DatabaseAdapter.class);
     Adapter adapter = context.mock(Adapter.class);
+    DatabaseAdapter database = context.mock(DatabaseAdapter.class);
 
     TravelTracker tracker = new TravelTracker(database, adapter, clock);
 
@@ -62,14 +64,14 @@ public class TravelTrackerTest {
     @Test
     public void oneCustomerNoJourneysTest(){ //also test getting and sending data
 
-        CUSTOMERS.add(customer);
+        CUSTOMERS.add(customerOne);
         journey = new ArrayList<>();
         costTotal= new BigDecimal(0).setScale(2, BigDecimal.ROUND_HALF_UP);
 
         context.checking(new Expectations(){{
             exactly(1).of(database).getCustomers(); will(returnValue(CUSTOMERS));
 
-            exactly(1).of(adapter).charge(customer, journey, costTotal);
+            exactly(1).of(adapter).charge(customerOne, journey, costTotal);
         }});
 
         tracker.chargeAccounts();
@@ -77,23 +79,23 @@ public class TravelTrackerTest {
     }
 
     @Test
-    public void oneCustomerOneNonPeakJourneysTest(){
-        CUSTOMERS.add(customer);
-        costTotal = new BigDecimal(2.4).setScale(2, BigDecimal.ROUND_HALF_UP);
+    public void oneCustomerOneOffPeakJourneysTest(){
+        CUSTOMERS.add(customerOne);
+        costTotal = new BigDecimal(1.6).setScale(2, BigDecimal.ROUND_HALF_UP);
 
         context.checking(new Expectations(){{
             exactly(1).of(database).getCustomers();will(returnValue(CUSTOMERS));
-            exactly(1).of(adapter).charge(with(equal(customer)), with(aNonNull(List.class)), with(equal(costTotal)));
+            exactly(1).of(adapter).charge(with(equal(customerOne)), with(aNonNull(List.class)), with(equal(costTotal)));
         }});
 
 
         tracker.connect(paddingtonReader, bakerStreetReader);
 
         clock.setTime(0,0);
-        paddingtonReader.touch(newCard);
+        paddingtonReader.touch(newCardOne);
 
         clock.setTime(0, 5);
-        bakerStreetReader.touch(newCard);
+        bakerStreetReader.touch(newCardOne);
 
 
         tracker.chargeAccounts();
@@ -102,23 +104,23 @@ public class TravelTrackerTest {
 
     @Test
     public void oneCustomerOnePeakJourneysTest() {
-        CUSTOMERS.add(customer);
-        costTotal = new BigDecimal(3.2).setScale(2, BigDecimal.ROUND_HALF_UP);
+        CUSTOMERS.add(customerOne);
+        costTotal = new BigDecimal(2.9).setScale(2, BigDecimal.ROUND_HALF_UP);
 
         context.checking(new Expectations() {{
             exactly(1).of(database).getCustomers();
             will(returnValue(CUSTOMERS));
-            exactly(1).of(adapter).charge(with(equal(customer)), with(aNonNull(List.class)), with(equal(costTotal)));
+            exactly(1).of(adapter).charge(with(equal(customerOne)), with(aNonNull(List.class)), with(equal(costTotal)));
         }});
 
 
         tracker.connect(paddingtonReader, bakerStreetReader);
 
-        clock.setTime(7, 30);
-        paddingtonReader.touch(newCard);
+        clock.setTime(8, 45);
+        paddingtonReader.touch(newCardOne);
 
-        clock.setTime(10, 5);
-        bakerStreetReader.touch(newCard);
+        clock.setTime(9, 5);
+        bakerStreetReader.touch(newCardOne);
 
 
         tracker.chargeAccounts();
@@ -126,61 +128,200 @@ public class TravelTrackerTest {
 
     @Test
     public void oneCustomerTwoPeakJourneysTest() {
-        CUSTOMERS.add(customer);
-        costTotal = new BigDecimal(6.4).setScale(2, BigDecimal.ROUND_HALF_UP);
+        CUSTOMERS.add(customerOne);
+        costTotal = new BigDecimal(5.8).setScale(2, BigDecimal.ROUND_HALF_UP);
 
         context.checking(new Expectations() {{
             exactly(1).of(database).getCustomers();
             will(returnValue(CUSTOMERS));
-            exactly(1).of(adapter).charge(with(equal(customer)), with(aNonNull(List.class)), with(equal(costTotal)));
+            exactly(1).of(adapter).charge(with(equal(customerOne)), with(aNonNull(List.class)), with(equal(costTotal)));
         }});
 
 
         tracker.connect(paddingtonReader, bakerStreetReader, kingsCrossReader);
 
         clock.setTime(7, 0);
-        paddingtonReader.touch(newCard);
+        paddingtonReader.touch(newCardOne);
 
-        clock.setTime(9, 5);
-        bakerStreetReader.touch(newCard);
+        clock.setTime(7, 5);
+        bakerStreetReader.touch(newCardOne);
 
-        clock.setTime(18,0);
-        bakerStreetReader.touch(newCard);
+        clock.setTime(18,50);
+        bakerStreetReader.touch(newCardOne);
 
-        clock.setTime(20,0);
-        kingsCrossReader.touch(newCard);
+        clock.setTime(19,0);
+        kingsCrossReader.touch(newCardOne);
 
         tracker.chargeAccounts();
     }
 
     @Test
     public void twoCustomerOnePeakJourneysTest() {
-        CUSTOMERS.add(customer);
-        costTotal = new BigDecimal(3.2).setScale(2, BigDecimal.ROUND_HALF_UP);
+        CUSTOMERS.add(customerOne);
+        costTotal = new BigDecimal(2.9).setScale(2, BigDecimal.ROUND_HALF_UP);
 
-        OysterCard newCardTwo = new OysterCard("3f1b3b55-f266-4426-ba1b-bcc506541866");
-        Customer customer2 = new Customer("Shelly Cooper", newCardTwo);
-        CUSTOMERS.add(customer2);
+        CUSTOMERS.add(customerTwo);
 
         context.checking(new Expectations() {{
             exactly(1).of(database).getCustomers();
             will(returnValue(CUSTOMERS));
-            exactly(1).of(adapter).charge(with(equal(customer)), with(aNonNull(List.class)), with(equal(costTotal)));
-            exactly(1).of(adapter).charge(with(equal(customer2)), with(aNonNull(List.class)), with(equal(costTotal)));
+            exactly(1).of(adapter).charge(with(equal(customerOne)), with(aNonNull(List.class)), with(equal(costTotal)));
+            exactly(1).of(adapter).charge(with(equal(customerTwo)), with(aNonNull(List.class)), with(equal(costTotal)));
         }});
 
 
         tracker.connect(paddingtonReader, bakerStreetReader, kingsCrossReader);
 
-        clock.setTime(7, 0);
-        paddingtonReader.touch(newCard);
+        clock.setTime(8, 55);
+        paddingtonReader.touch(newCardOne);
         kingsCrossReader.touch(newCardTwo);
 
         clock.setTime(9, 5);
-        bakerStreetReader.touch(newCard);
+        bakerStreetReader.touch(newCardOne);
         paddingtonReader.touch(newCardTwo);
 
         tracker.chargeAccounts();
     }
 
+    @Test
+    public void oneCustomerOffPeakLongJourneysTest(){
+        CUSTOMERS.add(customerOne);
+        costTotal = new BigDecimal(2.7).setScale(2, BigDecimal.ROUND_HALF_UP);
+
+        context.checking(new Expectations(){{
+            exactly(1).of(database).getCustomers();will(returnValue(CUSTOMERS));
+            exactly(1).of(adapter).charge(with(equal(customerOne)), with(aNonNull(List.class)), with(equal(costTotal)));
+        }});
+
+
+        tracker.connect(paddingtonReader, bakerStreetReader);
+
+        clock.setTime(0,0);
+        paddingtonReader.touch(newCardOne);
+
+        clock.setTime(0, 30);
+        bakerStreetReader.touch(newCardOne);
+
+
+        tracker.chargeAccounts();
+
+    }
+
+    @Test
+    public void oneOffPeakLongOnePeakLongAndOneOffPeakShortJourneysTest(){
+        CUSTOMERS.add(customerOne);
+        costTotal = new BigDecimal(8.1).setScale(2, BigDecimal.ROUND_HALF_UP);
+
+        context.checking(new Expectations(){{
+            exactly(1).of(database).getCustomers();will(returnValue(CUSTOMERS));
+            exactly(1).of(adapter).charge(with(equal(customerOne)), with(aNonNull(List.class)), with(equal(costTotal)));
+        }});
+
+
+        tracker.connect(paddingtonReader, bakerStreetReader);
+
+        clock.setTime(0,0);
+        paddingtonReader.touch(newCardOne);
+        clock.setTime(0, 30);  //Off peak long
+        bakerStreetReader.touch(newCardOne);
+
+        clock.setTime(2, 30);
+        bakerStreetReader.touch(newCardOne);
+        clock.setTime(2,40); //Off peak short
+        paddingtonReader.touch(newCardOne);
+
+        clock.setTime(6,0);
+        paddingtonReader.touch(newCardOne);
+        clock.setTime(7, 30);  //Peak long
+        bakerStreetReader.touch(newCardOne);
+
+        tracker.chargeAccounts();
+
+    }
+
+    @Test
+    public void peakJourneysCapTest(){
+        CUSTOMERS.add(customerOne);
+        costTotal = new BigDecimal(9).setScale(2, BigDecimal.ROUND_HALF_UP);
+
+        context.checking(new Expectations(){{
+            exactly(1).of(database).getCustomers();will(returnValue(CUSTOMERS));
+            exactly(1).of(adapter).charge(with(equal(customerOne)), with(aNonNull(List.class)), with(equal(costTotal)));
+        }});
+
+
+        tracker.connect(paddingtonReader, bakerStreetReader);
+
+        clock.setTime(0,0);
+        paddingtonReader.touch(newCardOne);
+        clock.setTime(0, 30);
+        bakerStreetReader.touch(newCardOne);
+
+        clock.setTime(2, 30);
+        bakerStreetReader.touch(newCardOne);
+        clock.setTime(2,40);
+        paddingtonReader.touch(newCardOne);
+
+        clock.setTime(6,0);
+        paddingtonReader.touch(newCardOne);
+        clock.setTime(7, 30);
+        bakerStreetReader.touch(newCardOne);
+
+        clock.setTime(12, 30);
+        bakerStreetReader.touch(newCardOne);
+        clock.setTime(12,40);
+        paddingtonReader.touch(newCardOne);
+
+        clock.setTime(15,0);
+        paddingtonReader.touch(newCardOne);
+        clock.setTime(15, 30);
+        bakerStreetReader.touch(newCardOne);
+
+
+        tracker.chargeAccounts();
+
+    }
+
+    @Test
+    public void offPeakJourneysCapTest(){
+        CUSTOMERS.add(customerOne);
+        costTotal = new BigDecimal(7).setScale(2, BigDecimal.ROUND_HALF_UP);
+
+        context.checking(new Expectations(){{
+            exactly(1).of(database).getCustomers();will(returnValue(CUSTOMERS));
+            exactly(1).of(adapter).charge(with(equal(customerOne)), with(aNonNull(List.class)), with(equal(costTotal)));
+        }});
+
+
+        tracker.connect(paddingtonReader, bakerStreetReader);
+
+        clock.setTime(0,0);
+        paddingtonReader.touch(newCardOne);
+        clock.setTime(0, 30);
+        bakerStreetReader.touch(newCardOne);
+
+        clock.setTime(2, 30);
+        bakerStreetReader.touch(newCardOne);
+        clock.setTime(2,40);
+        paddingtonReader.touch(newCardOne);
+
+        clock.setTime(9,1);
+        paddingtonReader.touch(newCardOne);
+        clock.setTime(9, 30);
+        bakerStreetReader.touch(newCardOne);
+
+        clock.setTime(12, 30);
+        bakerStreetReader.touch(newCardOne);
+        clock.setTime(12,40);
+        paddingtonReader.touch(newCardOne);
+
+        clock.setTime(15,0);
+        paddingtonReader.touch(newCardOne);
+        clock.setTime(15, 30);
+        bakerStreetReader.touch(newCardOne);
+
+
+        tracker.chargeAccounts();
+
+    }
 }
