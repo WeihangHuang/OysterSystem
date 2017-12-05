@@ -25,6 +25,6 @@ public class CustomerDatabaseAdapter implements DatabaseAdapter {
 
     @Override
     public boolean isRegisteredId(UUID cardId) {
-        return database.isRegisteredId(cardId);
+        return CustomerDatabase.getInstance().isRegisteredId(cardId);
     }
 }

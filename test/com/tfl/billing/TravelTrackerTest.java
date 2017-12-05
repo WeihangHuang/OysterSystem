@@ -9,6 +9,7 @@ import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -54,6 +55,9 @@ public class TravelTrackerTest {
 
     PaymentAdapter paymentAdapter = context.mock(PaymentAdapter.class);
     DatabaseAdapter database = context.mock(DatabaseAdapter.class);
+
+    @Rule
+    public final ExpectedException exception = ExpectedException.none();
 
 
     @Test
@@ -126,7 +130,6 @@ public class TravelTrackerTest {
         tracker.chargeAccounts();
     }
 
-
     @Test
     public void oneCustomerTwoPeakJourneysTest() {
         TravelTracker tracker = new TravelTracker(database, paymentAdapter, clock);
@@ -159,7 +162,6 @@ public class TravelTrackerTest {
 
         tracker.chargeAccounts();
     }
-
 
     @Test
     public void twoCustomerOnePeakJourneysTest() {
@@ -349,5 +351,26 @@ public class TravelTrackerTest {
 
     }
 
+    @Test
+    public void canThrownUnknownOysterCardException(){
+        TravelTracker tracker = new TravelTracker(database, paymentAdapter, clock);
+        OysterCard unregisteredCard = new OysterCard("ffffffff-ffff-ffff-ffff-ffffffffffff");
+
+        context.checking(new Expectations(){{
+            allowing(database).isRegisteredId(unregisteredCard.id());
+            will(throwException(new UnknownOysterCardException(unregisteredCard.id())));
+        }});
+
+        tracker.connect(paddingtonReader, bakerStreetReader);
+
+        exception.expect(UnknownOysterCardException.class);
+
+        clock.setTime(0,0);
+        paddingtonReader.touch(unregisteredCard);
+        clock.setTime(0, 30);
+        bakerStreetReader.touch(unregisteredCard);
+
+        tracker.chargeAccounts();
+    }
 
 }
