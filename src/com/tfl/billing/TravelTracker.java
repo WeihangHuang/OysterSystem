@@ -18,7 +18,7 @@ public class TravelTracker implements ScanListener {
     private final Set<UUID> currentlyTravelling = new HashSet<UUID>();
 
     private DatabaseAdapter customerDatabase;
-    private Adapter payments_instance;
+    private PaymentAdapter payments_instance;
     private Clock clock;
 
     public TravelTracker(){
@@ -28,9 +28,9 @@ public class TravelTracker implements ScanListener {
     }
 
 
-    public TravelTracker(DatabaseAdapter database, Adapter adapter, Clock clock) {
+    public TravelTracker(DatabaseAdapter database, PaymentAdapter paymentAdapter, Clock clock) {
         this.customerDatabase = database;
-        this.payments_instance = adapter;
+        this.payments_instance = paymentAdapter;
         this.clock = clock;
     }
 

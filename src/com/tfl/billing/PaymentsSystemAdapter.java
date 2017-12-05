@@ -9,7 +9,7 @@ import java.util.List;
 /**
  * Created by apple on 12/3/17.
  */
-public class PaymentsSystemAdapter implements Adapter {
+public class PaymentsSystemAdapter implements PaymentAdapter {
 
     private static PaymentsSystemAdapter instance = new PaymentsSystemAdapter();
 

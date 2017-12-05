@@ -49,10 +49,10 @@ public class TravelTrackerTest {
     @Rule
     public JUnitRuleMockery context = new JUnitRuleMockery();
 
-    Adapter adapter = context.mock(Adapter.class);
+    PaymentAdapter paymentAdapter = context.mock(PaymentAdapter.class);
     DatabaseAdapter database = context.mock(DatabaseAdapter.class);
 
-    TravelTracker tracker = new TravelTracker(database, adapter, clock);
+    TravelTracker tracker = new TravelTracker(database, paymentAdapter, clock);
 
 
     OysterCardReader paddingtonReader = OysterReaderLocator.atStation(Station.PADDINGTON);
@@ -71,7 +71,7 @@ public class TravelTrackerTest {
         context.checking(new Expectations(){{
             exactly(1).of(database).getCustomers(); will(returnValue(CUSTOMERS));
 
-            exactly(1).of(adapter).charge(customerOne, journey, costTotal);
+            exactly(1).of(paymentAdapter).charge(customerOne, journey, costTotal);
         }});
 
         tracker.chargeAccounts();
@@ -85,7 +85,7 @@ public class TravelTrackerTest {
 
         context.checking(new Expectations(){{
             exactly(1).of(database).getCustomers();will(returnValue(CUSTOMERS));
-            exactly(1).of(adapter).charge(with(equal(customerOne)), with(aNonNull(List.class)), with(equal(costTotal)));
+            exactly(1).of(paymentAdapter).charge(with(equal(customerOne)), with(aNonNull(List.class)), with(equal(costTotal)));
         }});
 
 
@@ -110,7 +110,7 @@ public class TravelTrackerTest {
         context.checking(new Expectations() {{
             exactly(1).of(database).getCustomers();
             will(returnValue(CUSTOMERS));
-            exactly(1).of(adapter).charge(with(equal(customerOne)), with(aNonNull(List.class)), with(equal(costTotal)));
+            exactly(1).of(paymentAdapter).charge(with(equal(customerOne)), with(aNonNull(List.class)), with(equal(costTotal)));
         }});
 
 
@@ -134,7 +134,7 @@ public class TravelTrackerTest {
         context.checking(new Expectations() {{
             exactly(1).of(database).getCustomers();
             will(returnValue(CUSTOMERS));
-            exactly(1).of(adapter).charge(with(equal(customerOne)), with(aNonNull(List.class)), with(equal(costTotal)));
+            exactly(1).of(paymentAdapter).charge(with(equal(customerOne)), with(aNonNull(List.class)), with(equal(costTotal)));
         }});
 
 
@@ -165,8 +165,8 @@ public class TravelTrackerTest {
         context.checking(new Expectations() {{
             exactly(1).of(database).getCustomers();
             will(returnValue(CUSTOMERS));
-            exactly(1).of(adapter).charge(with(equal(customerOne)), with(aNonNull(List.class)), with(equal(costTotal)));
-            exactly(1).of(adapter).charge(with(equal(customerTwo)), with(aNonNull(List.class)), with(equal(costTotal)));
+            exactly(1).of(paymentAdapter).charge(with(equal(customerOne)), with(aNonNull(List.class)), with(equal(costTotal)));
+            exactly(1).of(paymentAdapter).charge(with(equal(customerTwo)), with(aNonNull(List.class)), with(equal(costTotal)));
         }});
 
 
@@ -190,7 +190,7 @@ public class TravelTrackerTest {
 
         context.checking(new Expectations(){{
             exactly(1).of(database).getCustomers();will(returnValue(CUSTOMERS));
-            exactly(1).of(adapter).charge(with(equal(customerOne)), with(aNonNull(List.class)), with(equal(costTotal)));
+            exactly(1).of(paymentAdapter).charge(with(equal(customerOne)), with(aNonNull(List.class)), with(equal(costTotal)));
         }});
 
 
@@ -214,7 +214,7 @@ public class TravelTrackerTest {
 
         context.checking(new Expectations(){{
             exactly(1).of(database).getCustomers();will(returnValue(CUSTOMERS));
-            exactly(1).of(adapter).charge(with(equal(customerOne)), with(aNonNull(List.class)), with(equal(costTotal)));
+            exactly(1).of(paymentAdapter).charge(with(equal(customerOne)), with(aNonNull(List.class)), with(equal(costTotal)));
         }});
 
 
@@ -246,7 +246,7 @@ public class TravelTrackerTest {
 
         context.checking(new Expectations(){{
             exactly(1).of(database).getCustomers();will(returnValue(CUSTOMERS));
-            exactly(1).of(adapter).charge(with(equal(customerOne)), with(aNonNull(List.class)), with(equal(costTotal)));
+            exactly(1).of(paymentAdapter).charge(with(equal(customerOne)), with(aNonNull(List.class)), with(equal(costTotal)));
         }});
 
 
@@ -289,7 +289,7 @@ public class TravelTrackerTest {
 
         context.checking(new Expectations(){{
             exactly(1).of(database).getCustomers();will(returnValue(CUSTOMERS));
-            exactly(1).of(adapter).charge(with(equal(customerOne)), with(aNonNull(List.class)), with(equal(costTotal)));
+            exactly(1).of(paymentAdapter).charge(with(equal(customerOne)), with(aNonNull(List.class)), with(equal(costTotal)));
         }});
 
 
