@@ -121,7 +121,7 @@ public class TravelTracker implements ScanListener {
             eventLog.add(new JourneyEnd(cardId, readerId, clock));
             currentlyTravelling.remove(cardId);
         } else {
-            if (CustomerDatabase.getInstance().isRegisteredId(cardId)) {
+            if (customerDatabase.isRegisteredId(cardId)) {
                 currentlyTravelling.add(cardId);
                 eventLog.add(new JourneyStart(cardId, readerId, clock));
             } else {
