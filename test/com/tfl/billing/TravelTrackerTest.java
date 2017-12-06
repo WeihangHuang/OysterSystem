@@ -7,6 +7,8 @@ import com.tfl.underground.OysterReaderLocator;
 import com.tfl.underground.Station;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -20,6 +22,11 @@ import java.util.List;
  */
 public class TravelTrackerTest {
 
+
+    private PaymentAdapter paymentAdapter;
+    private DatabaseAdapter database;
+    private TravelTracker tracker;
+    private List<Customer> CUSTOMERS;
 
     private class ControllableClock implements Clock{
         long time;
@@ -42,28 +49,51 @@ public class TravelTrackerTest {
 
     private BigDecimal costTotal;
 
-    ControllableClock clock = new ControllableClock();
+    private ControllableClock clock;
 
-    OysterCardReader paddingtonReader = OysterReaderLocator.atStation(Station.PADDINGTON);
-    OysterCardReader bakerStreetReader = OysterReaderLocator.atStation(Station.BAKER_STREET);
-    OysterCardReader kingsCrossReader = OysterReaderLocator.atStation(Station.KINGS_CROSS);
+    private OysterCardReader paddingtonReader;
+    private OysterCardReader bakerStreetReader;
+    private OysterCardReader kingsCrossReader;
 
 
 
     @Rule
     public JUnitRuleMockery context = new JUnitRuleMockery();
 
-    PaymentAdapter paymentAdapter = context.mock(PaymentAdapter.class);
-    DatabaseAdapter database = context.mock(DatabaseAdapter.class);
-
     @Rule
     public final ExpectedException exception = ExpectedException.none();
+
+    @Before
+    public void setup(){
+        paymentAdapter = context.mock(PaymentAdapter.class);
+        database = context.mock(DatabaseAdapter.class);
+        clock = new ControllableClock();
+
+        paddingtonReader = OysterReaderLocator.atStation(Station.PADDINGTON);
+        bakerStreetReader = OysterReaderLocator.atStation(Station.BAKER_STREET);
+        kingsCrossReader = OysterReaderLocator.atStation(Station.KINGS_CROSS);
+
+        tracker = new TravelTracker(database, paymentAdapter, clock);
+        CUSTOMERS = new ArrayList<>();
+    }
+
+    @After
+    public void teardown(){
+        paymentAdapter = null;
+        database = null;
+        clock = null;
+
+        tracker = null;
+        CUSTOMERS = null;
+
+        paddingtonReader = null;
+        bakerStreetReader = null;
+        kingsCrossReader = null;
+    }
 
 
     @Test
     public void oneCustomerNoJourneysTest(){
-        TravelTracker tracker = new TravelTracker(database, paymentAdapter, clock);
-        List<Customer> CUSTOMERS = new ArrayList<>();
         CUSTOMERS.add(FRED_BLOGGS);
         List<Journey> journeys = new ArrayList<>();
         costTotal= new BigDecimal(0).setScale(2, BigDecimal.ROUND_HALF_UP);
@@ -79,8 +109,6 @@ public class TravelTrackerTest {
 
     @Test
     public void oneCustomerOneOffPeakJourneysTest(){
-        TravelTracker tracker = new TravelTracker(database, paymentAdapter, clock);
-        List<Customer> CUSTOMERS = new ArrayList<>();
         CUSTOMERS.add(FRED_BLOGGS);
         costTotal = new BigDecimal(1.6).setScale(2, BigDecimal.ROUND_HALF_UP);
 
@@ -106,8 +134,6 @@ public class TravelTrackerTest {
 
     @Test
     public void oneCustomerOnePeakJourneysTest() {
-        TravelTracker tracker = new TravelTracker(database, paymentAdapter, clock);
-        List<Customer> CUSTOMERS = new ArrayList<>();
         CUSTOMERS.add(FRED_BLOGGS);
         costTotal = new BigDecimal(2.9).setScale(2, BigDecimal.ROUND_HALF_UP);
 
@@ -132,8 +158,6 @@ public class TravelTrackerTest {
 
     @Test
     public void oneCustomerTwoPeakJourneysTest() {
-        TravelTracker tracker = new TravelTracker(database, paymentAdapter, clock);
-        List<Customer> CUSTOMERS = new ArrayList<>();
         CUSTOMERS.add(FRED_BLOGGS);
         costTotal = new BigDecimal(5.8).setScale(2, BigDecimal.ROUND_HALF_UP);
 
@@ -165,8 +189,6 @@ public class TravelTrackerTest {
 
     @Test
     public void twoCustomerOnePeakJourneysTest() {
-        TravelTracker tracker = new TravelTracker(database, paymentAdapter, clock);
-        List<Customer> CUSTOMERS = new ArrayList<>();
 
         CUSTOMERS.add(FRED_BLOGGS);
         CUSTOMERS.add(SHELLY_COOPER);
@@ -198,8 +220,6 @@ public class TravelTrackerTest {
 
     @Test
     public void oneCustomerOffPeakLongJourneysTest(){
-        TravelTracker tracker = new TravelTracker(database, paymentAdapter, clock);
-        List<Customer> CUSTOMERS = new ArrayList<>();
         CUSTOMERS.add(FRED_BLOGGS);
         costTotal = new BigDecimal(2.7).setScale(2, BigDecimal.ROUND_HALF_UP);
 
@@ -225,8 +245,6 @@ public class TravelTrackerTest {
 
     @Test
     public void oneOffPeakLongOnePeakLongAndOneOffPeakShortJourneysTest(){
-        TravelTracker tracker = new TravelTracker(database, paymentAdapter, clock);
-        List<Customer> CUSTOMERS = new ArrayList<>();
         CUSTOMERS.add(FRED_BLOGGS);
         costTotal = new BigDecimal(8.1).setScale(2, BigDecimal.ROUND_HALF_UP);
 
@@ -260,8 +278,6 @@ public class TravelTrackerTest {
 
     @Test
     public void peakJourneysCapTest(){
-        TravelTracker tracker = new TravelTracker(database, paymentAdapter, clock);
-        List<Customer> CUSTOMERS = new ArrayList<>();
         CUSTOMERS.add(FRED_BLOGGS);
         costTotal = new BigDecimal(9).setScale(2, BigDecimal.ROUND_HALF_UP);
 
@@ -307,14 +323,12 @@ public class TravelTrackerTest {
 
     @Test
     public void offPeakJourneysCapTest(){
-        TravelTracker tracker = new TravelTracker(database, paymentAdapter, clock);
-        List<Customer> CUSTOMERS = new ArrayList<>();
         CUSTOMERS.add(FRED_BLOGGS);
         costTotal = new BigDecimal(7).setScale(2, BigDecimal.ROUND_HALF_UP);
 
         context.checking(new Expectations(){{
-            allowing(database).isRegisteredId(CARD_OF_FRED_BLOGGS.id());will(returnValue(true));
             exactly(1).of(database).getCustomers();will(returnValue(CUSTOMERS));
+            allowing(database).isRegisteredId(CARD_OF_FRED_BLOGGS.id());will(returnValue(true));
             exactly(1).of(paymentAdapter).charge(with(equal(FRED_BLOGGS)), with(aNonNull(List.class)), with(equal(costTotal)));
         }});
 
@@ -351,26 +365,20 @@ public class TravelTrackerTest {
 
     }
 
+
     @Test
     public void canThrownUnknownOysterCardException(){
-        TravelTracker tracker = new TravelTracker(database, paymentAdapter, clock);
         OysterCard unregisteredCard = new OysterCard("ffffffff-ffff-ffff-ffff-ffffffffffff");
 
         context.checking(new Expectations(){{
-            allowing(database).isRegisteredId(unregisteredCard.id());
-            will(throwException(new UnknownOysterCardException(unregisteredCard.id())));
+            exactly(1).of(database).isRegisteredId(unregisteredCard.id());
+            will(returnValue(false));
         }});
 
-        tracker.connect(paddingtonReader, bakerStreetReader);
-
         exception.expect(UnknownOysterCardException.class);
-
-        clock.setTime(0,0);
-        paddingtonReader.touch(unregisteredCard);
-        clock.setTime(0, 30);
-        bakerStreetReader.touch(unregisteredCard);
-
-        tracker.chargeAccounts();
+        tracker.cardScanned(unregisteredCard.id(), paddingtonReader.id());
+//        paddingtonReader.touch(unregisteredCard);
+//        tracker.chargeAccounts();
     }
 
 }
