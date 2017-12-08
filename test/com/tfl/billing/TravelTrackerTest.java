@@ -23,8 +23,8 @@ import java.util.List;
 public class TravelTrackerTest {
 
 
-    private PaymentAdapter paymentAdapter;
-    private DatabaseAdapter database;
+    private PaymentsSystemInterface paymentsSystemInterface;
+    private CustomerDatabaseInterface database;
     private TravelTracker tracker;
     private List<Customer> CUSTOMERS;
 
@@ -65,21 +65,21 @@ public class TravelTrackerTest {
 
     @Before
     public void setup(){
-        paymentAdapter = context.mock(PaymentAdapter.class);
-        database = context.mock(DatabaseAdapter.class);
+        paymentsSystemInterface = context.mock(PaymentsSystemInterface.class);
+        database = context.mock(CustomerDatabaseInterface.class);
         clock = new ControllableClock();
 
         paddingtonReader = OysterReaderLocator.atStation(Station.PADDINGTON);
         bakerStreetReader = OysterReaderLocator.atStation(Station.BAKER_STREET);
         kingsCrossReader = OysterReaderLocator.atStation(Station.KINGS_CROSS);
 
-        tracker = new TravelTracker(database, paymentAdapter, clock);
+        tracker = new TravelTracker(database, paymentsSystemInterface, clock);
         CUSTOMERS = new ArrayList<>();
     }
 
     @After
     public void teardown(){
-        paymentAdapter = null;
+        paymentsSystemInterface = null;
         database = null;
         clock = null;
 
@@ -100,7 +100,7 @@ public class TravelTrackerTest {
 
         context.checking(new Expectations(){{
             exactly(1).of(database).getCustomers(); will(returnValue(CUSTOMERS));
-            exactly(1).of(paymentAdapter).charge(FRED_BLOGGS, journeys, costTotal);
+            exactly(1).of(paymentsSystemInterface).charge(FRED_BLOGGS, journeys, costTotal);
         }});
 
         tracker.chargeAccounts();
@@ -115,7 +115,7 @@ public class TravelTrackerTest {
         context.checking(new Expectations(){{
             allowing(database).isRegisteredId(CARD_OF_FRED_BLOGGS.id()); will(returnValue(true));
             exactly(1).of(database).getCustomers();will(returnValue(CUSTOMERS));
-            exactly(1).of(paymentAdapter).charge(with(equal(FRED_BLOGGS)), with(aNonNull(List.class)), with(equal(costTotal)));
+            exactly(1).of(paymentsSystemInterface).charge(with(equal(FRED_BLOGGS)), with(aNonNull(List.class)), with(equal(costTotal)));
         }});
 
 
@@ -140,7 +140,7 @@ public class TravelTrackerTest {
         context.checking(new Expectations() {{
             allowing(database).isRegisteredId(CARD_OF_FRED_BLOGGS.id()); will(returnValue(true));
             exactly(1).of(database).getCustomers();will(returnValue(CUSTOMERS));
-            exactly(1).of(paymentAdapter).charge(with(equal(FRED_BLOGGS)), with(aNonNull(List.class)), with(equal(costTotal)));
+            exactly(1).of(paymentsSystemInterface).charge(with(equal(FRED_BLOGGS)), with(aNonNull(List.class)), with(equal(costTotal)));
         }});
 
 
@@ -166,7 +166,7 @@ public class TravelTrackerTest {
             allowing(database).isRegisteredId(CARD_OF_FRED_BLOGGS.id()); will(returnValue(true));
             exactly(1).of(database).getCustomers();
             will(returnValue(CUSTOMERS));
-            exactly(1).of(paymentAdapter).charge(with(equal(FRED_BLOGGS)), with(aNonNull(List.class)), with(equal(costTotal)));
+            exactly(1).of(paymentsSystemInterface).charge(with(equal(FRED_BLOGGS)), with(aNonNull(List.class)), with(equal(costTotal)));
         }});
 
 
@@ -200,8 +200,8 @@ public class TravelTrackerTest {
 
             exactly(1).of(database).getCustomers();
             will(returnValue(CUSTOMERS));
-            exactly(1).of(paymentAdapter).charge(with(equal(FRED_BLOGGS)), with(aNonNull(List.class)), with(equal(costTotal)));
-            exactly(1).of(paymentAdapter).charge(with(equal(SHELLY_COOPER)), with(aNonNull(List.class)), with(equal(costTotal)));
+            exactly(1).of(paymentsSystemInterface).charge(with(equal(FRED_BLOGGS)), with(aNonNull(List.class)), with(equal(costTotal)));
+            exactly(1).of(paymentsSystemInterface).charge(with(equal(SHELLY_COOPER)), with(aNonNull(List.class)), with(equal(costTotal)));
         }});
 
 
@@ -226,7 +226,7 @@ public class TravelTrackerTest {
         context.checking(new Expectations(){{
             allowing(database).isRegisteredId(CARD_OF_FRED_BLOGGS.id());will(returnValue(true));
             exactly(1).of(database).getCustomers();will(returnValue(CUSTOMERS));
-            exactly(1).of(paymentAdapter).charge(with(equal(FRED_BLOGGS)), with(aNonNull(List.class)), with(equal(costTotal)));
+            exactly(1).of(paymentsSystemInterface).charge(with(equal(FRED_BLOGGS)), with(aNonNull(List.class)), with(equal(costTotal)));
         }});
 
 
@@ -251,7 +251,7 @@ public class TravelTrackerTest {
         context.checking(new Expectations(){{
             allowing(database).isRegisteredId(CARD_OF_FRED_BLOGGS.id());will(returnValue(true));
             exactly(1).of(database).getCustomers();will(returnValue(CUSTOMERS));
-            exactly(1).of(paymentAdapter).charge(with(equal(FRED_BLOGGS)), with(aNonNull(List.class)), with(equal(costTotal)));
+            exactly(1).of(paymentsSystemInterface).charge(with(equal(FRED_BLOGGS)), with(aNonNull(List.class)), with(equal(costTotal)));
         }});
 
 
@@ -285,7 +285,7 @@ public class TravelTrackerTest {
             allowing(database).isRegisteredId(CARD_OF_FRED_BLOGGS.id());will(returnValue(true));
 
             exactly(1).of(database).getCustomers();will(returnValue(CUSTOMERS));
-            exactly(1).of(paymentAdapter).charge(with(equal(FRED_BLOGGS)), with(aNonNull(List.class)), with(equal(costTotal)));
+            exactly(1).of(paymentsSystemInterface).charge(with(equal(FRED_BLOGGS)), with(aNonNull(List.class)), with(equal(costTotal)));
         }});
 
 
@@ -329,7 +329,7 @@ public class TravelTrackerTest {
         context.checking(new Expectations(){{
             exactly(1).of(database).getCustomers();will(returnValue(CUSTOMERS));
             allowing(database).isRegisteredId(CARD_OF_FRED_BLOGGS.id());will(returnValue(true));
-            exactly(1).of(paymentAdapter).charge(with(equal(FRED_BLOGGS)), with(aNonNull(List.class)), with(equal(costTotal)));
+            exactly(1).of(paymentsSystemInterface).charge(with(equal(FRED_BLOGGS)), with(aNonNull(List.class)), with(equal(costTotal)));
         }});
 
 

@@ -8,7 +8,7 @@ import java.util.UUID;
 /**
  * Created by apple on 12/4/17.
  */
-public interface DatabaseAdapter {
+public interface CustomerDatabaseInterface {
 
     List<Customer> getCustomers();
 

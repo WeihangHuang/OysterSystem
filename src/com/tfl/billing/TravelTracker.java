@@ -2,7 +2,6 @@ package com.tfl.billing;
 
 import com.oyster.*;
 import com.tfl.external.Customer;
-import com.tfl.external.CustomerDatabase;
 
 import java.math.BigDecimal;
 import java.util.*;
@@ -17,20 +16,20 @@ public class TravelTracker implements ScanListener {
     private final List<JourneyEvent> eventLog = new ArrayList<JourneyEvent>();
     private final Set<UUID> currentlyTravelling = new HashSet<UUID>();
 
-    private DatabaseAdapter customerDatabase;
-    private PaymentAdapter payments_instance;
+    private CustomerDatabaseInterface customerDatabase;
+    private PaymentsSystemInterface payments_instance;
     private Clock clock;
 
     public TravelTracker(){
-        this.customerDatabase = CustomerDatabaseAdapter.getInstance();
+        this.customerDatabase = CustomerCustomerDatabaseInterface.getInstance();
         this.payments_instance = PaymentsSystemAdapter.getInstance();
         this.clock = new SystemClock();
     }
 
 
-    public TravelTracker(DatabaseAdapter database, PaymentAdapter paymentAdapter, Clock clock) {
+    public TravelTracker(CustomerDatabaseInterface database, PaymentsSystemInterface paymentsSystemInterface, Clock clock) {
         this.customerDatabase = database;
-        this.payments_instance = paymentAdapter;
+        this.payments_instance = paymentsSystemInterface;
         this.clock = clock;
     }
 

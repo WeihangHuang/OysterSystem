@@ -9,13 +9,13 @@ import java.util.UUID;
 /**
  * Created by apple on 12/4/17.
  */
-public class CustomerDatabaseAdapter implements DatabaseAdapter {
+public class CustomerCustomerDatabaseInterface implements CustomerDatabaseInterface {
 
     private CustomerDatabase database;
 
-    private static CustomerDatabaseAdapter instance = new CustomerDatabaseAdapter();
+    private static CustomerCustomerDatabaseInterface instance = new CustomerCustomerDatabaseInterface();
 
-    public static CustomerDatabaseAdapter getInstance() { return instance;}
+    public static CustomerCustomerDatabaseInterface getInstance() { return instance;}
 
     @Override
     public List<Customer> getCustomers() {

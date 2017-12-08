@@ -11,9 +11,9 @@ import static org.junit.Assert.*;
 /**
  * Created by apple on 12/8/17.
  */
-public class CustomerDatabaseAdapterTest {
+public class CustomerCustomerDatabaseInterfaceTest {
 
-    private CustomerDatabaseAdapter database = CustomerDatabaseAdapter.getInstance();
+    private CustomerCustomerDatabaseInterface database = CustomerCustomerDatabaseInterface.getInstance();
 
     @Test
     public void canRetrieved(){
